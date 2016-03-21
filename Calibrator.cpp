@@ -2,8 +2,8 @@
 #include <unistd.h>
 #include <math.h>
 #include <sys/time.h>
-#include "Util.hpp"
-#include "BlobDetector.hpp"
+#include "processamento-de-imgs/Util.hpp"
+#include "processamento-de-imgs/BlobDetector.hpp"
 
 #define QTT_SIGMA 1.5
 #define EROSION_DILATION_SIZE 3

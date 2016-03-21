@@ -7,25 +7,20 @@ CPPVERSION = --std=c++11
 
 
 clean:
-	rm -f HandCounter
-	rm -f HandCounter_bgRemoval
-	rm -f VoteMode
-	rm -f DialMode
 	rm -rf CoinCounter
+	rm -rf Calibrator
 	rm -f *.o
+	rm -f processamento-de-imgs/*.o
 	rm -rf *.dSYM
 
-InteractiveObject.o: InteractiveObject.cpp
-	g++ $< -o $@ -c $(CPPVERSION)
+BlobDetector.o: processamento-de-imgs/BlobDetector.cpp
+	g++ -c processamento-de-imgs/BlobDetector.cpp
 
-BlobDetector.o: BlobDetector.cpp
-	g++ -c BlobDetector.cpp
-
-Util.o: Util.cpp
+Util.o: processamento-de-imgs/Util.cpp
 	g++ $< -o $@ -c $(X11FLAG)
 
-CoinCounter: CoinCounter.cpp Util.o BlobDetector.o
-	g++ $< -o $@  $(LIBS) $(X11FLAG) Util.o BlobDetector.o $(CPPVERSION) $(FLAGS)
+CoinCounter: CoinCounter.cpp processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o
+	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o $(CPPVERSION) $(FLAGS)
 
-Calibrator: Calibrator.cpp Util.o BlobDetector.o
-	g++ $< -o $@  $(LIBS) $(X11FLAG) Util.o BlobDetector.o $(CPPVERSION) $(FLAGS)
+Calibrator: Calibrator.cpp processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o
+	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o $(CPPVERSION) $(FLAGS)

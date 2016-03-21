@@ -9,8 +9,8 @@
 #include <opencv2/opencv.hpp>
 #include <unistd.h>
 #include <sys/time.h>
-#include "Util.hpp"
-#include "BlobDetector.hpp"
+#include "processamento-de-imgs/Util.hpp"
+#include "processamento-de-imgs/BlobDetector.hpp"
 
 #define EROSION_DILATION_SIZE 3
 
@@ -65,11 +65,6 @@ int main(int argc, char** argv){
 //for(int j=0; j < coinAreas.size(); j++) cout << coinAreas[j][0] << " " << coinAreas[j][1] << "\n";
 	/****************************************************/
 
-//DEBUG
-//for(int i=0; i < coinAreas.size(); i++)
-//	cout << coinNumbers[i] << " " << coinAreas[i][0] << " " << coinAreas[i][1] << "\n";
-
-
 	Mat frame;
 	Mat orig;
 	Mat fore;
@@ -77,6 +72,7 @@ int main(int argc, char** argv){
 	time_t camAdaptationStartTime = time(NULL);
 	bool camAdapted = false;
 
+	vector<int> coinCount(coinNumbers.size(), 0); /* inicializa contador de moedas individual */
 	vector<vector<Point>> objects;
 	
 	//Configura janela
@@ -110,13 +106,28 @@ int main(int argc, char** argv){
 //		if( detector.getBlobs().size() != 1 && detector.getBlobs().size() != 0)
 //			tipoObjeto += "s";
 //		sprintf(buffer, "%lu %s", detector.getBlobs().size(), tipoObjeto.c_str());
-			
-			double totalMoney = 0;
-			for(int i=0; i < detector.getBlobs().size(); i++)
-				totalMoney += coinValue( coinNumbers, coinIdentifier(coinAreas, detector.getBlobs()[i]) );
-			sprintf(buffer, "R$ %0.2f", totalMoney/100);
 
-			putText(orig,buffer,Point(20,orig.size().height-40),FONT_HERSHEY_PLAIN,6,Scalar(0,0,0),4);
+			for(int i=0; i < coinCount.size(); i++) //Limpa contador individual de moedas
+				coinCount[i] = 0;
+
+			double totalMoney = 0;
+			for(int i=0; i < detector.getBlobs().size(); i++){
+				int coinID = coinIdentifier(coinAreas, detector.getBlobs()[i]);
+				coinCount[coinID]++;
+				totalMoney += coinValue( coinNumbers, coinID);
+			}
+
+			sprintf(buffer, "R$ %0.2f", totalMoney/100);
+			for(int i=0; i < coinCount.size()-1; i++){
+				char buffCoin[11];
+				sprintf(buffCoin, "%02dc: %d", coinNumbers[i], coinCount[i]);
+				putText(orig,buffCoin,Point(10, 20 + i*20), FONT_HERSHEY_PLAIN, 1,Scalar(0,0,0), 4);
+			}
+			char buffCoin[11];
+			sprintf(buffCoin, "R$1: %d", coinCount[4]);
+			putText(orig,buffCoin,Point(10, 20 + 4*20), FONT_HERSHEY_PLAIN, 1,Scalar(0,0,0), 4);
+
+			putText(orig,buffer,Point(20,orig.size().height-40), FONT_HERSHEY_PLAIN, 6,Scalar(0,0,0),4);
 		} /**********************************************************************/
 
 

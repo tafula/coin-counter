@@ -2,9 +2,11 @@ DETECÇÃO DE MOEDAS
 
 Repositório que armazena código de detecção de moedas. O código conta o valor monetário mostrado na tela.
 
+processamento-de-imgs/
 - BlobDetector.cpp: Usado para detecção e tratamento de Blobs;
 - Util.cpp: Calibragem da câmera (Hardware);
 
+./
 - settings.txt: Guarda as configurações a serem usadas pelo CoinCounter.cpp para identificar e separar as moedas;
 - Calibrator.cpp: Configura o settings.txt;
 - CoinCounter.cpp: main.
