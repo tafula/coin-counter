@@ -1,4 +1,4 @@
-DETECÇÃO DE MOEDAS
+DETECÇÃO DE MOEDAS (Branch que roda no note do Lab!)
 
 Repositório que armazena código de detecção de moedas. O código conta o valor monetário mostrado na tela.
 
@@ -17,4 +17,4 @@ No momento os valores são lidos apenas em Reais. A ordem no Calibrator.cpp é h
 2) Detectar outros nuances para diferenciação de moedas (cor, detalhes, grossura);
 3) Adicionar elementos na interface (de ambos CoinCounter.cpp e Calibrator.cpp) para deixar o programa mais amigável ao usuário.
 
-Se a cena for muito caótica ou a iluminação for fraca/inconstante o desempenho do programa não vai ser muito bom.
+O desempenho do programa fica melhor quando as moedas estão sobre uma superfície preta e fosca. O plano da câmera deve estar o mais paralelo o possível com o plano do background. A luz deve ser moderada e não muito caótica.

@@ -60,7 +60,7 @@ int main(int argc, char** argv){
 		if( camAdapted){
 			detector.morphologyOperations(frame, frame);
 			detector.findBlobs(frame);
-//			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
+			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
       
 			detector.drawBlobs(orig, Scalar(255,255,0));
 
@@ -69,12 +69,12 @@ int main(int argc, char** argv){
 				char buffCoin[11] = " ";
 				if( i < k) sprintf(buffCoin, "%02dc: OK", coinValues[i]);
 				else if( i == k) sprintf(buffCoin, "%02dc: --", coinValues[i]);
-				putText(orig,buffCoin,Point(10, 20 + i*20), FONT_HERSHEY_PLAIN, 1,Scalar(0,0,0), 4);
+				putText(orig,buffCoin,Point(10, 20 + i*20), FONT_HERSHEY_PLAIN, 1,Scalar(255,255,255), 4);
 			}
 			char buffCoin[11] = " ";
 			if( k > 4) sprintf(buffCoin, "R$1: OK");
 			else if( k == 4) sprintf(buffCoin, "R$1: --");
-			putText(orig,buffCoin,Point(10, 20 + 4*20), FONT_HERSHEY_PLAIN, 1,Scalar(0,0,0), 4);
+			putText(orig,buffCoin,Point(10, 20 + 4*20), FONT_HERSHEY_PLAIN, 1,Scalar(255,255,255), 4);
 
 			//Printa num de moedas identificadas
 			char buffer[11];
@@ -82,7 +82,7 @@ int main(int argc, char** argv){
 			if( detector.getBlobs().size() != 1 && detector.getBlobs().size() != 0)
 				tipoObjeto += "s";
 			sprintf(buffer, "%lu %s", detector.getBlobs().size(), tipoObjeto.c_str());
-			putText(orig,buffer,Point(20,orig.size().height-40),FONT_HERSHEY_PLAIN,6,Scalar(0,0,0),4);
+			putText(orig,buffer,Point(20,orig.size().height-40),FONT_HERSHEY_PLAIN,6,Scalar(255,255,255),4);
 
 		} /*******************************************/
 
