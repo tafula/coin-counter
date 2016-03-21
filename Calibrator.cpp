@@ -60,10 +60,23 @@ int main(int argc, char** argv){
 		if( camAdapted){
 			detector.morphologyOperations(frame, frame);
 			detector.findBlobs(frame);
-//		imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
+//			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
       
 			detector.drawBlobs(orig, Scalar(255,255,0));
 
+			//Printa quais moedas ja foram calibradas
+			for(int i=0; i < coinValues.size()-1; i++){
+				char buffCoin[11] = " ";
+				if( i < k) sprintf(buffCoin, "%02dc: OK", coinValues[i]);
+				else if( i == k) sprintf(buffCoin, "%02dc: --", coinValues[i]);
+				putText(orig,buffCoin,Point(10, 20 + i*20), FONT_HERSHEY_PLAIN, 1,Scalar(0,0,0), 4);
+			}
+			char buffCoin[11] = " ";
+			if( k > 4) sprintf(buffCoin, "R$1: OK");
+			else if( k == 4) sprintf(buffCoin, "R$1: --");
+			putText(orig,buffCoin,Point(10, 20 + 4*20), FONT_HERSHEY_PLAIN, 1,Scalar(0,0,0), 4);
+
+			//Printa num de moedas identificadas
 			char buffer[11];
 			string tipoObjeto = "moeda";
 			if( detector.getBlobs().size() != 1 && detector.getBlobs().size() != 0)
@@ -78,8 +91,8 @@ int main(int argc, char** argv){
 				camAdapted = true;
 				detector.resetBackground();
 				DisableCameraAutoAdjust(GetVideoNum(argc, argv));
-      }
-      else{
+			}
+			else{
 				string text = "Configurando...";
 				Size txtSz = getTextSize(text, FONT_HERSHEY_PLAIN, 4, 4, NULL);
 				putText(orig,text,Point(orig.size().width / 2 - txtSz.width / 2, orig.size().height /2 - 2* txtSz.height), FONT_HERSHEY_PLAIN, 4, Scalar(0, 0, 255), 4);
@@ -97,7 +110,7 @@ int main(int argc, char** argv){
 		/*** Acoes do teclado ***/
 		/************************************************/
 		int key = cv::waitKey(30);
-		if ((key & 0xFF) == 27) {      //Esc: sair
+		if ((key & 0xFF) == 27){       //Esc: sair
 			exit(0);
 		}
 		else if ((key & 0xFF) == ' '){ //Space: recalibragem
@@ -107,13 +120,11 @@ int main(int argc, char** argv){
 		}
 		else if ((key & 0xFF) == 'a' || (key & 0xFF) == 'A'){ //A: salva moeda
 			allCoins.push_back( coinChars(coinValues[k], detector.getBlobs()) );			
-			camAdapted = false;
-			EnableCameraAutoAdjust(GetVideoNum(argc, argv));   
-			camAdaptationStartTime = time(NULL);
+//			camAdapted = false;
+//			EnableCameraAutoAdjust(GetVideoNum(argc, argv));   
+//			camAdaptationStartTime = time(NULL);
 			k++;
-		}
-		/**********************************************/
-
+		} /**********************************************/
 	}
 
 	/*** Salva mudancas no settings.txt ***/

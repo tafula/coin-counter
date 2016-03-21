@@ -61,8 +61,8 @@ int main(int argc, char** argv){
 		}
 	}
 	fclose(setter);
-//for(int j=0; j < coinNumbers.size(); j++) cout << coinNumbers[j] << "\n";
-//for(int j=0; j < coinAreas.size(); j++) cout << coinAreas[j][0] << " " << coinAreas[j][1] << "\n";
+//	for(int j=0; j < coinNumbers.size(); j++) cout << coinNumbers[j] << "\n";
+//	for(int j=0; j < coinAreas.size(); j++) cout << coinAreas[j][0] << " " << coinAreas[j][1] << "\n";
 	/****************************************************/
 
 	Mat frame;
@@ -97,27 +97,21 @@ int main(int argc, char** argv){
 		if( camAdapted){
 			detector.morphologyOperations(frame, frame); /* operacoes morfologicas */
 			detector.findBlobs(frame); /* identifica e guarda blobs */
-//		imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
+//			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
       
 			detector.drawBlobs(orig, Scalar(255,255,0)); /* desenha convex hull dos blobs na copia da imagem original */
-
-			char buffer[11];
-//		string tipoObjeto = "moeda";
-//		if( detector.getBlobs().size() != 1 && detector.getBlobs().size() != 0)
-//			tipoObjeto += "s";
-//		sprintf(buffer, "%lu %s", detector.getBlobs().size(), tipoObjeto.c_str());
 
 			for(int i=0; i < coinCount.size(); i++) //Limpa contador individual de moedas
 				coinCount[i] = 0;
 
 			double totalMoney = 0;
-			for(int i=0; i < detector.getBlobs().size(); i++){
+			for(int i=0; i < detector.getBlobs().size(); i++){ //Conta moedas e soma dinheiro
 				int coinID = coinIdentifier(coinAreas, detector.getBlobs()[i]);
 				coinCount[coinID]++;
 				totalMoney += coinValue( coinNumbers, coinID);
 			}
 
-			sprintf(buffer, "R$ %0.2f", totalMoney/100);
+			//Printa qtde de moedas individuais na tela
 			for(int i=0; i < coinCount.size()-1; i++){
 				char buffCoin[11];
 				sprintf(buffCoin, "%02dc: %d", coinNumbers[i], coinCount[i]);
@@ -127,6 +121,13 @@ int main(int argc, char** argv){
 			sprintf(buffCoin, "R$1: %d", coinCount[4]);
 			putText(orig,buffCoin,Point(10, 20 + 4*20), FONT_HERSHEY_PLAIN, 1,Scalar(0,0,0), 4);
 
+			//Printa valor em dinheiro na tela
+			char buffer[11];
+//			string tipoObjeto = "moeda";
+//			if( detector.getBlobs().size() != 1 && detector.getBlobs().size() != 0)
+//				tipoObjeto += "s";
+//			sprintf(buffer, "%lu %s", detector.getBlobs().size(), tipoObjeto.c_str());
+			sprintf(buffer, "R$ %0.2f", totalMoney/100);
 			putText(orig,buffer,Point(20,orig.size().height-40), FONT_HERSHEY_PLAIN, 6,Scalar(0,0,0),4);
 		} /**********************************************************************/
 
@@ -136,8 +137,8 @@ int main(int argc, char** argv){
 				camAdapted = true;
 				detector.resetBackground();
 				DisableCameraAutoAdjust(GetVideoNum(argc, argv));
-      }
-      else{
+			}
+			else{
 				string text = "Configurando...";
 				Size txtSz = getTextSize(text, FONT_HERSHEY_PLAIN, 4, 4, NULL);
 				putText(orig,text,Point(orig.size().width / 2 - txtSz.width / 2, orig.size().height /2 - 2* txtSz.height), FONT_HERSHEY_PLAIN, 4, Scalar(0, 0, 255), 4);
