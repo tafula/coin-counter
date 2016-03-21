@@ -9,8 +9,7 @@ using namespace cv;
 
 class BlobDetector{
 private:
-//Ptr<BackgroundSubtractorMOG2> backgroungSubtractor;
-  BackgroundSubtractorMOG2 backgroungSubtractor;
+  Ptr<BackgroundSubtractorMOG2> backgroungSubtractor;
   Mat morphologicalKernel;
   vector< vector<Point>  > hulls;
   int minAreaBlob;

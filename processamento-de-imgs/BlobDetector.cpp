@@ -4,7 +4,7 @@ BlobDetector::BlobDetector(int kernelShape, Size kernelSize, Point kernelAnchorP
   morphologicalKernel = getStructuringElement(kernelShape, kernelSize, kernelAnchorPoint);
   minAreaBlob = minArea;
   maxAreaBlob = maxArea;
-  backgroungSubtractor = BackgroundSubtractorMOG2();
+  backgroungSubtractor = createBackgroundSubtractorMOG2();
   MIN_THRESHOLD = minT;
   DEST_THRESHOLD = maxT;
 }
@@ -13,7 +13,7 @@ BlobDetector::BlobDetector(int kernelShape, Size kernelSize, Point kernelAnchorP
 /*** Reseta Background ***/
 /**************************************************/
 void BlobDetector::resetBackground(){
-  backgroungSubtractor = BackgroundSubtractorMOG2();
+  backgroungSubtractor = createBackgroundSubtractorMOG2();
 } /************************************************/
 
 
@@ -39,8 +39,8 @@ Mat BlobDetector::findBlobs(Mat orig){
 	Mat foreground;
 	vector < vector<Point> > contours;
 
-//backgroungSubtractor->apply(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
-	backgroungSubtractor(orig.clone(), foreground, 0.0001);
+
+	backgroungSubtractor->apply(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
 
 	threshold(foreground, foreground, MIN_THRESHOLD, DEST_THRESHOLD, CV_THRESH_BINARY);
 
