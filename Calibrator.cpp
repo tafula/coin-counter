@@ -6,18 +6,21 @@
 #include "processamento-de-imgs/BlobDetector.hpp"
 
 #define QTT_SIGMA 1.5
-#define EROSION_DILATION_SIZE 3
+#define EROSION_DILATION_SIZE 5
 
 using namespace cv;
 using namespace std;
 
 //Devolve caracteristicas do tipo de moeda analisada
-vector<double> coinChars( int valCoin, vector<vector<Point>> blobList){
+vector<double> coinChars( int valCoin, vector<RotatedRect> blobList){
 	double expBlobSz = 0, sigmaBlobSz = 0, qSigma = 1.5;
 
 	for(int i=0; i < blobList.size(); i++){
-		expBlobSz += contourArea(blobList[i])/blobList.size();
-		sigmaBlobSz += (contourArea(blobList[i])/blobList.size()) * contourArea(blobList[i]);
+		double wBlob, hBlob;
+		blobList[i].Size2f(wBlob, hBlob);
+		double blobArea = hBlob * wBlob;
+		expBlobSz += blobArea/blobList.size();
+		sigmaBlobSz += (blobArea/blobList.size()) * blobArea;
 	}
 	sigmaBlobSz = sqrt(sigmaBlobSz - pow(expBlobSz, 2));
 	return {double(valCoin), expBlobSz - (QTT_SIGMA * sigmaBlobSz), expBlobSz + (QTT_SIGMA * sigmaBlobSz)};
@@ -45,7 +48,7 @@ int main(int argc, char** argv){
 	VideoCapture cap(GetVideoNum(argc, argv));
 
 	//Inicializa o BlobDetector
-	BlobDetector detector(MORPH_RECT, Size(2 * EROSION_DILATION_SIZE + 1, 2 * EROSION_DILATION_SIZE + 1), Point(EROSION_DILATION_SIZE, EROSION_DILATION_SIZE), 729, 10E6, 125, 255);
+	BlobDetector detector(MORPH_ELLIPSE, Size(2 * EROSION_DILATION_SIZE + 1, 2 * EROSION_DILATION_SIZE + 1), Point(EROSION_DILATION_SIZE, EROSION_DILATION_SIZE), 729, 10E6, 125, 255);
 
 	int k = 0;
 	vector<int> coinValues = {5, 10, 25, 50, 100};
@@ -62,7 +65,7 @@ int main(int argc, char** argv){
 			detector.findBlobs(frame);
 			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
       
-			detector.drawBlobs(orig, Scalar(255,255,0));
+			detector.drawEllipses(orig, Scalar(255,255,0));
 
 			//Printa quais moedas ja foram calibradas
 			for(int i=0; i < coinValues.size()-1; i++){
@@ -79,9 +82,9 @@ int main(int argc, char** argv){
 			//Printa num de moedas identificadas
 			char buffer[11];
 			string tipoObjeto = "moeda";
-			if( detector.getBlobs().size() != 1 && detector.getBlobs().size() != 0)
+			if( detector.getEllipses().size() != 1 && detector.getEllipses().size() != 0)
 				tipoObjeto += "s";
-			sprintf(buffer, "%lu %s", detector.getBlobs().size(), tipoObjeto.c_str());
+			sprintf(buffer, "%lu %s", detector.getEllipses().size(), tipoObjeto.c_str());
 			putText(orig,buffer,Point(20,orig.size().height-40),FONT_HERSHEY_PLAIN,6,Scalar(255,255,255),4);
 
 		} /*******************************************/
@@ -119,7 +122,7 @@ int main(int argc, char** argv){
 			camAdaptationStartTime = time(NULL);
 		}
 		else if ((key & 0xFF) == 'a' || (key & 0xFF) == 'A'){ //A: salva moeda
-			allCoins.push_back( coinChars(coinValues[k], detector.getBlobs()) );			
+			allCoins.push_back( coinChars(coinValues[k], detector.getEllipses()) );			
 //			camAdapted = false;
 //			EnableCameraAutoAdjust(GetVideoNum(argc, argv));   
 //			camAdaptationStartTime = time(NULL);

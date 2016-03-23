@@ -46,8 +46,15 @@ Mat BlobDetector::findBlobs(Mat orig){
 
 	findContours(foreground.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
+	
+	minEllipse.clear();
+	for( int i = 0; i < contours.size(); i++ ){
+		if( contours[i].size() > 5 ){
+			minEllipse.push_back(fitEllipse( Mat(contours[i]) ));
+		}
+	}
+
 	hulls.clear();
-  
 	for(int i = 0; i < contours.size(); i++){
 		vector<Point> hull;
 		convexHull( Mat(contours[i]), hull, false);
@@ -66,12 +73,27 @@ vector< vector<Point> > BlobDetector::getBlobs(){
 	return hulls;
 } /*********************************************/
 
+/*** Devolve lista de elipses ***/ 
+/***********************************************/
+vector< RotatedRect > BlobDetector::getEllipses(){
+	return minEllipse;
+} /*********************************************/
+
 
 /*** Desenha blobs identificados na imagem ***/
 /****************************************************/
 void BlobDetector::drawBlobs(Mat frame, Scalar color){
 	for(int i = 0; i < hulls.size(); i++){
 		drawContours(frame, hulls, i, color, 1, 8, vector<Vec4i>(), 0, Point());
+	}
+} /**************************************************/
+
+
+/*** Desenha elipses identificadas na imagem ***/
+/****************************************************/
+void BlobDetector::drawEllipses(Mat frame, Scalar color){
+	for(int i = 0; i < minEllipse.size(); i++){
+		ellipse(frame, minEllipse[i], color, 2, 8 );
 	}
 } /**************************************************/
 

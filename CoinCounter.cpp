@@ -12,7 +12,7 @@
 #include "processamento-de-imgs/Util.hpp"
 #include "processamento-de-imgs/BlobDetector.hpp"
 
-#define EROSION_DILATION_SIZE 3
+#define EROSION_DILATION_SIZE 5
 
 using namespace cv;
 using namespace std;
@@ -99,7 +99,7 @@ int main(int argc, char** argv){
 			detector.findBlobs(frame); /* identifica e guarda blobs */
 			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
       
-			detector.drawBlobs(orig, Scalar(255,255,0)); /* desenha convex hull dos blobs na copia da imagem original */
+			detector.drawEllipses(orig, Scalar(255,255,0)); /* desenha fitEllipse dos blobs na copia da imagem original */
 
 			for(int i=0; i < coinCount.size(); i++) //Limpa contador individual de moedas
 				coinCount[i] = 0;
