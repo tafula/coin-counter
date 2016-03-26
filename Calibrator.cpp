@@ -6,7 +6,7 @@
 #include "processamento-de-imgs/BlobDetector.hpp"
 
 #define QTT_SIGMA 1.5
-#define EROSION_DILATION_SIZE 5
+#define EROSION_DILATION_SIZE 3
 
 using namespace cv;
 using namespace std;
@@ -16,9 +16,8 @@ vector<double> coinChars( int valCoin, vector<RotatedRect> blobList){
 	double expBlobSz = 0, sigmaBlobSz = 0, qSigma = 1.5;
 
 	for(int i=0; i < blobList.size(); i++){
-		double wBlob, hBlob;
-		blobList[i].Size2f(wBlob, hBlob);
-		double blobArea = hBlob * wBlob;
+		Size2f areaEll = blobList[i].size;
+		double blobArea = areaEll.width * areaEll.height;
 		expBlobSz += blobArea/blobList.size();
 		sigmaBlobSz += (blobArea/blobList.size()) * blobArea;
 	}
@@ -63,7 +62,7 @@ int main(int argc, char** argv){
 		if( camAdapted){
 			detector.morphologyOperations(frame, frame);
 			detector.findBlobs(frame);
-			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
+//			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
       
 			detector.drawEllipses(orig, Scalar(255,255,0));
 

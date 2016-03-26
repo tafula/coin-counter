@@ -18,8 +18,9 @@ using namespace cv;
 using namespace std;
 
 //Identifica qual moeda mais se aproxima do blob identificado
-int coinIdentifier( vector<vector<double>> coinAreas, vector<Point> hull){
-	double area = contourArea(hull);
+int coinIdentifier( vector<vector<double>> coinAreas, RotatedRect ellHull){
+	Size2f areaEll = ellHull.size;
+	double area = areaEll.width * areaEll.height;
 	for(int i=0; i < coinAreas.size(); i++){
 		if( area >= coinAreas[i][0] && area <= coinAreas[i][1])
 			return i;
@@ -97,18 +98,25 @@ int main(int argc, char** argv){
 		if( camAdapted){
 			detector.morphologyOperations(frame, frame); /* operacoes morfologicas */
 			detector.findBlobs(frame); /* identifica e guarda blobs */
-			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
-      
+//			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
+
+      vector< RotatedRect > ellipsesGot = detector.getEllipses();
 			detector.drawEllipses(orig, Scalar(255,255,0)); /* desenha fitEllipse dos blobs na copia da imagem original */
 
 			for(int i=0; i < coinCount.size(); i++) //Limpa contador individual de moedas
 				coinCount[i] = 0;
 
 			double totalMoney = 0;
-			for(int i=0; i < detector.getBlobs().size(); i++){ //Conta moedas e soma dinheiro
-				int coinID = coinIdentifier(coinAreas, detector.getBlobs()[i]);
+			for(int i=0; i < ellipsesGot.size(); i++){ //Conta moedas e soma dinheiro
+				int coinID = coinIdentifier(coinAreas, ellipsesGot[i]);
 				coinCount[coinID]++;
 				totalMoney += coinValue( coinNumbers, coinID);
+
+				char buffCoin[11]; //Printa o valor da moeda em cima desta
+				if(coinID >= 0 && coinID < coinCount.size()-1) sprintf(buffCoin, "%02dc", coinNumbers[coinID]);
+				else if(coinID == coinCount.size()-1) sprintf(buffCoin, "R$1");
+				else sprintf(buffCoin, "???");
+				putText(orig,buffCoin, ellipsesGot[i].center, FONT_HERSHEY_PLAIN, 1,Scalar(255,255,0), 4);
 			}
 
 			//Printa qtde de moedas individuais na tela

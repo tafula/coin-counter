@@ -18,3 +18,9 @@ No momento os valores são lidos apenas em Reais. A ordem no Calibrator.cpp é h
 3) Adicionar elementos na interface (de ambos CoinCounter.cpp e Calibrator.cpp) para deixar o programa mais amigável ao usuário.
 
 O desempenho do programa fica melhor quando as moedas estão sobre uma superfície preta e fosca. O plano da câmera deve estar o mais paralelo o possível com o plano do background. A luz deve ser moderada e não muito caótica.
+
+-----------------------
+OBS:: Se você não estiver conseguindo dar make mesmo com todas as bibliotecas instaladas e atualizadas, uma das (ou ambas) coisas abaixo pode ajudar:
+
+1) Em processamento-de-imgs/BlobDetector.hpp, tente trocar a linha 4 "#define labNote 0" para "#define labNote 1";
+2) No Makefile, tente remover das LIBS (linha 4) a string "-isystem/usr/include".

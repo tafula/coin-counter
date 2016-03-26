@@ -1,6 +1,8 @@
 #ifndef BLOB_DETECTOR_H
 #define BLOB_DETECTOR_H
 
+#define labNote 0
+
 #include<opencv2/opencv.hpp>
 
 using namespace std;
@@ -9,7 +11,11 @@ using namespace cv;
 
 class BlobDetector{
 private:
-  Ptr<BackgroundSubtractorMOG2> backgroungSubtractor;
+#if labNote
+	Ptr<BackgroundSubtractorMOG2> backgroungSubtractor;
+#else
+	BackgroundSubtractorMOG2 backgroungSubtractor;
+#endif
   Mat morphologicalKernel;
   vector< vector<Point> > hulls;
   vector< RotatedRect> minEllipse;

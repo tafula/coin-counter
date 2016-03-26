@@ -4,7 +4,13 @@ BlobDetector::BlobDetector(int kernelShape, Size kernelSize, Point kernelAnchorP
   morphologicalKernel = getStructuringElement(kernelShape, kernelSize, kernelAnchorPoint);
   minAreaBlob = minArea;
   maxAreaBlob = maxArea;
-  backgroungSubtractor = createBackgroundSubtractorMOG2();
+
+#if labNote
+		backgroungSubtractor = createBackgroundSubtractorMOG2();
+#else
+		backgroungSubtractor = BackgroundSubtractorMOG2();
+#endif
+
   MIN_THRESHOLD = minT;
   DEST_THRESHOLD = maxT;
 }
@@ -13,7 +19,11 @@ BlobDetector::BlobDetector(int kernelShape, Size kernelSize, Point kernelAnchorP
 /*** Reseta Background ***/
 /**************************************************/
 void BlobDetector::resetBackground(){
+#if labNote
   backgroungSubtractor = createBackgroundSubtractorMOG2();
+#else
+	backgroungSubtractor = BackgroundSubtractorMOG2();
+#endif
 } /************************************************/
 
 
@@ -39,8 +49,11 @@ Mat BlobDetector::findBlobs(Mat orig){
 	Mat foreground;
 	vector < vector<Point> > contours;
 
-
+#if labNote
 	backgroungSubtractor->apply(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
+#else
+	backgroungSubtractor(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
+#endif
 
 	threshold(foreground, foreground, MIN_THRESHOLD, DEST_THRESHOLD, CV_THRESH_BINARY);
 
@@ -49,8 +62,13 @@ Mat BlobDetector::findBlobs(Mat orig){
 	
 	minEllipse.clear();
 	for( int i = 0; i < contours.size(); i++ ){
-		if( contours[i].size() > 5 ){
-			minEllipse.push_back(fitEllipse( Mat(contours[i]) ));
+		if( contours[i].size() > 20){
+			RotatedRect ellHull = fitEllipse( Mat(contours[i]) );
+			Size2f areaEll = ellHull.size;
+			double area = areaEll.width * areaEll.height;
+			if(area > minAreaBlob && area < maxAreaBlob){
+				minEllipse.push_back( ellHull );
+			}
 		}
 	}
 
