@@ -48,7 +48,7 @@ int main(int argc, char** argv){
 	VideoCapture cap(GetVideoNum(argc, argv));
 
 	//Inicializa o BlobDetector
-	BlobDetector detector(MORPH_ELLIPSE, Size(2 * EROSION_DILATION_SIZE + 1, 2 * EROSION_DILATION_SIZE + 1), Point(EROSION_DILATION_SIZE, EROSION_DILATION_SIZE), 729, 10E6, 125, 255);
+	BlobDetector detector(MORPH_RECT, Size(2 * EROSION_DILATION_SIZE + 1, 2 * EROSION_DILATION_SIZE + 1), Point(EROSION_DILATION_SIZE, EROSION_DILATION_SIZE), 729, 10E6, 125, 255);
 
 	int k = 0;
 	vector<vector<double>> allCoins;

@@ -7,7 +7,7 @@
 #include "processamento-de-imgs/Util.hpp"
 #include "processamento-de-imgs/BlobDetector.hpp"
 
-#define EROSION_DILATION_SIZE 2
+#define EROSION_DILATION_SIZE 3
 #define QTT_SIGMA 1
 
 using namespace cv;
