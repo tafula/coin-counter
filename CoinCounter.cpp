@@ -93,7 +93,7 @@ int main(int argc, char** argv){
 //			detector.drawBlobs(orig, Scalar(255,255,0));
 			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
 
-      vector< RotatedRect > ellipsesGot = detector.getEllipses();
+			vector< RotatedRect > ellipsesGot = detector.getEllipses();
 			detector.drawEllipses(orig, Scalar(255,255,0)); /* desenha fitEllipse dos blobs na copia da imagem original */
 
 			for(int i=0; i < coinCount.size(); i++) //Limpa contador individual de moedas

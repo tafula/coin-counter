@@ -65,7 +65,7 @@ int main(int argc, char** argv){
 
 //			detector.findBlobs(frame);
 //			detector.drawBlobs(orig, Scalar(255,255,0));
-//			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
+			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
       
 			detector.drawEllipses(orig, Scalar(255,255,0));
 
