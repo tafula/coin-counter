@@ -59,19 +59,6 @@ Mat BlobDetector::findBlobs(Mat orig){
 
 	findContours(foreground.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
-	
-	minEllipse.clear();
-	for( int i = 0; i < contours.size(); i++ ){
-		if( contours[i].size() > 20){
-			RotatedRect ellHull = fitEllipse( Mat(contours[i]) );
-			Size2f areaEll = ellHull.size;
-			double area = areaEll.width * areaEll.height;
-			if(area > minAreaBlob && area < maxAreaBlob){
-				minEllipse.push_back( ellHull );
-			}
-		}
-	}
-
 	hulls.clear();
 	for(int i = 0; i < contours.size(); i++){
 		vector<Point> hull;
@@ -83,6 +70,39 @@ Mat BlobDetector::findBlobs(Mat orig){
 
 	return foreground;
 } /***********************************************************/
+
+/*** Procura Ellipses na imagem ***/
+/*************************************************************/
+Mat BlobDetector::findEllipses(Mat orig){
+	Mat foreground;
+	vector < vector<Point> > contours;
+
+#if labNote
+	backgroungSubtractor->apply(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
+#else
+	backgroungSubtractor(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
+#endif
+
+	threshold(foreground, foreground, MIN_THRESHOLD, DEST_THRESHOLD, CV_THRESH_BINARY);
+
+	findContours(foreground.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+	
+	minEllipse.clear();
+	for( int i = 0; i < contours.size(); i++ ){
+		if( contours[i].size() > 20){
+			RotatedRect ellHull = fitEllipse( Mat(contours[i]) );
+			Size2f areaEll = ellHull.size;
+			double area = areaEll.width * areaEll.height;
+			if(area > minAreaBlob && area < maxAreaBlob){
+				if(areaEll.width/areaEll.height <= ECC_ELL && areaEll.height/areaEll.width <= ECC_ELL) minEllipse.push_back( ellHull );
+			}
+		}
+	}
+
+	return foreground;
+} /***********************************************************/
+
 
 
 /*** Devolve lista de blobs ***/ 

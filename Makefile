@@ -9,6 +9,7 @@ CPPVERSION = --std=c++11
 clean:
 	rm -rf CoinCounter
 	rm -rf Calibrator
+	rm -rf oldCalib
 	rm -f *.o
 	rm -f processamento-de-imgs/*.o
 	rm -rf *.dSYM
@@ -23,4 +24,7 @@ CoinCounter: CoinCounter.cpp processamento-de-imgs/Util.o processamento-de-imgs/
 	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o $(CPPVERSION) $(FLAGS)
 
 Calibrator: Calibrator.cpp processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o
+	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o $(CPPVERSION) $(FLAGS)
+
+oldCalib: expCalib.cpp processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o
 	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o $(CPPVERSION) $(FLAGS)

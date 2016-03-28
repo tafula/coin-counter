@@ -2,6 +2,7 @@
 #define BLOB_DETECTOR_H
 
 #define labNote 0
+#define ECC_ELL 1.2
 
 #include<opencv2/opencv.hpp>
 
@@ -34,6 +35,7 @@ public:
   void drawEllipses(Mat frame, Scalar color);
   void morphologyOperations(Mat orig, Mat dest);
   Mat findBlobs(Mat orig);
+	Mat findEllipses(Mat orig);
   void resetBackground();
 };
 

@@ -6,16 +6,7 @@
 /***         e contagem de dinheiro.         ***/
 /***********************************************/
 
-#include <opencv2/opencv.hpp>
-#include <unistd.h>
-#include <sys/time.h>
-#include "processamento-de-imgs/Util.hpp"
-#include "processamento-de-imgs/BlobDetector.hpp"
-
-#define EROSION_DILATION_SIZE 5
-
-using namespace cv;
-using namespace std;
+#include "CoinCounter.hpp"
 
 //Identifica qual moeda mais se aproxima do blob identificado
 int coinIdentifier( vector<vector<double>> coinAreas, RotatedRect ellHull){
@@ -34,7 +25,6 @@ double coinValue( vector<int> coinNumbers, int idCents){
 		return 0;
 	return coinNumbers[idCents];
 }
-
 
 int main(int argc, char** argv){
 	
@@ -97,7 +87,10 @@ int main(int argc, char** argv){
 		/************************************************************************/
 		if( camAdapted){
 			detector.morphologyOperations(frame, frame); /* operacoes morfologicas */
-			detector.findBlobs(frame); /* identifica e guarda blobs */
+			detector.findEllipses(frame); /* identifica e guarda blobs */
+
+//			detector.findBlobs(frame);
+//			detector.drawBlobs(orig, Scalar(255,255,0));
 //			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
 
       vector< RotatedRect > ellipsesGot = detector.getEllipses();
