@@ -2,7 +2,7 @@
 
 //Devolve caracteristicas do tipo de moeda analisada
 vector<double> coinChars( int coinNumber, int valCoin, vector<RotatedRect> blobList){
-	double expBlobSz = 0, sigmaBlobSz = 0, qSigma = 1.5;
+	double expBlobSz = 0, sigmaBlobSz = 0;
 
 	for(int i=0; i < blobList.size(); i++){
 		Size2f areaEll = blobList[i].size;
@@ -23,7 +23,7 @@ vector<double> coinChars( int coinNumber, int valCoin, vector<RotatedRect> blobL
 	else sigmaBlobSz = expBlobSz * min(abs(coinFactor[coinNumber]- coinFactor[prevCoin]), abs(coinFactor[nextCoin]-coinFactor[coinNumber])) / QTT_SIGMA;
 	/****************************************/
 
-	return {double(valCoin), expBlobSz - sigmaBlobSz, expBlobSz + sigmaBlobSz};
+	return {double(valCoin), expBlobSz - sigmaBlobSz/2, expBlobSz + sigmaBlobSz/2};
 }
 
 

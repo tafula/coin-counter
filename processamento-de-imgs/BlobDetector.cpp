@@ -50,9 +50,9 @@ Mat BlobDetector::findBlobs(Mat orig){
 	vector < vector<Point> > contours;
 
 #if labNote
-	backgroungSubtractor->apply(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
+	backgroungSubtractor->apply(orig.clone(), foreground, learnRate); //3o PARAMETRO: Learning rate do BackgroundSubtractor
 #else
-	backgroungSubtractor(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
+	backgroungSubtractor(orig.clone(), foreground, learnRate);
 #endif
 
 	threshold(foreground, foreground, MIN_THRESHOLD, DEST_THRESHOLD, CV_THRESH_BINARY);
@@ -78,9 +78,9 @@ Mat BlobDetector::findEllipses(Mat orig){
 	vector < vector<Point> > contours;
 
 #if labNote
-	backgroungSubtractor->apply(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
+	backgroungSubtractor->apply(orig.clone(), foreground, learnRate); //3o PARAMETRO: Learning rate do BackgroundSubtractor
 #else
-	backgroungSubtractor(orig.clone(), foreground, 0.0001); //DESCOBRIR O QUE E ESSE TERCEIRO PARAMETRO
+	backgroungSubtractor(orig.clone(), foreground, learnRate);
 #endif
 
 	threshold(foreground, foreground, MIN_THRESHOLD, DEST_THRESHOLD, CV_THRESH_BINARY);

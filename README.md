@@ -17,7 +17,7 @@ No momento os valores são lidos apenas em Reais. A ordem no Calibrator.cpp é h
 - [ ] Detectar outros nuances para diferenciação de moedas (cor, detalhes, grossura);
 - [ ] Adicionar elementos na interface (de ambos CoinCounter.cpp e Calibrator.cpp) para deixar o programa mais amigável ao usuário.
 
-O desempenho do programa fica melhor quando as moedas estão sobre uma superfície preta e fosca. O plano da câmera deve estar o mais paralelo o possível com o plano do background. A luz deve ser moderada e não muito caótica.
+O desempenho do programa fica melhor quando as moedas estão sobre uma superfície preta e fosca. O plano da câmera deve estar o mais paralelo o possível com o plano do background. No momento o programa está muito sensível a luz!
 
 -----------------------
 OBS:: Se você não estiver conseguindo dar make mesmo com todas as bibliotecas instaladas e atualizadas, uma das (ou ambas) coisas abaixo pode ajudar:
