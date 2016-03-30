@@ -26,5 +26,5 @@ CoinCounter: CoinCounter.cpp processamento-de-imgs/Util.o processamento-de-imgs/
 Calibrator: Calibrator.cpp processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o
 	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o $(CPPVERSION) $(FLAGS)
 
-oldCalib: expCalib.cpp processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o
-	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o $(CPPVERSION) $(FLAGS)
+Old: processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o
+	g++ noHough/semiOldCalib.cpp -o noHough/semiOldCalib $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o $(CPPVERSION) $(FLAGS)

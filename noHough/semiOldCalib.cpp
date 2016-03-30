@@ -1,4 +1,4 @@
-#include "CoinCounter.hpp"
+#include "../CoinCounter.hpp"
 
 //Devolve caracteristicas do tipo de moeda analisada
 vector<double> coinChars( int coinNumber, int valCoin, vector<RotatedRect> blobList){
