@@ -9,9 +9,9 @@
 #include "CoinCounter.hpp"
 
 //Identifica qual moeda mais se aproxima do blob identificado
-int coinIdentifier( vector<vector<double>> coinAreas, RotatedRect ellHull){
-	Size2f areaEll = ellHull.size;
-	double area = areaEll.width * areaEll.height;
+int coinIdentifier( vector<vector<double>> coinAreas, Vec3f circleCoin){
+	double radCoin = circleCoin[2];
+	double area = pow(radCoin, 2);
 	for(int i=0; i < coinAreas.size(); i++){
 		if( area >= coinAreas[i][0] && area <= coinAreas[i][1])
 			return i;
@@ -58,7 +58,6 @@ int main(int argc, char** argv){
 
 	Mat frame;
 	Mat orig;
-	Mat fore;
 
 	time_t camAdaptationStartTime = time(NULL);
 	bool camAdapted = false;
@@ -87,21 +86,21 @@ int main(int argc, char** argv){
 		/************************************************************************/
 		if( camAdapted){
 			detector.morphologyOperations(frame, frame); /* operacoes morfologicas */
-			detector.findEllipses(frame); /* identifica e guarda blobs */
+			detector.findHough(frame); /* identifica e guarda blobs */
 
-//			detector.findBlobs(frame);
-//			detector.drawBlobs(orig, Scalar(255,255,0));
-			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
+			vector<Vec3f> houghGot = detector.getHough();
+			detector.drawHough(orig, Scalar(255,255,0)); /* desenha HoughCircles dos blobs na copia da imagem original */
 
-			vector< RotatedRect > ellipsesGot = detector.getEllipses();
-			detector.drawEllipses(orig, Scalar(255,255,0)); /* desenha fitEllipse dos blobs na copia da imagem original */
+//			imshow("Treated Image", detector.findHough(frame)); /* mostra masks para fins de debug */
+
+
 
 			for(int i=0; i < coinCount.size(); i++) //Limpa contador individual de moedas
 				coinCount[i] = 0;
 
 			double totalMoney = 0;
-			for(int i=0; i < ellipsesGot.size(); i++){ //Conta moedas e soma dinheiro
-				int coinID = coinIdentifier(coinAreas, ellipsesGot[i]);
+			for(int i=0; i < houghGot.size(); i++){ //Conta moedas e soma dinheiro
+				int coinID = coinIdentifier(coinAreas, houghGot[i]);
 				coinCount[coinID]++;
 				totalMoney += coinValue( coinNumbers, coinID);
 
@@ -109,7 +108,8 @@ int main(int argc, char** argv){
 				if(coinID >= 0 && coinID < coinCount.size()-1) sprintf(buffCoin, "%02dc", coinNumbers[coinID]);
 				else if(coinID == coinCount.size()-1) sprintf(buffCoin, "R$1");
 				else sprintf(buffCoin, "???");
-				putText(orig,buffCoin, ellipsesGot[i].center, FONT_HERSHEY_PLAIN, 1,Scalar(255,255,0), 4);
+				Point center(cvRound(houghGot[i][0]), cvRound(houghGot[i][1]));
+				putText(orig, buffCoin, center, FONT_HERSHEY_PLAIN, 1,Scalar(255,255,0), 4);
 			}
 
 			//Printa qtde de moedas individuais na tela

@@ -1,35 +1,36 @@
 #include "CoinCounter.hpp"
 
 //Devolve caracteristicas do tipo de moeda analisada
-vector<double> coinChars( int coinNumber, int valCoin, vector<Vec3f> circleList){
-	double expCircleSz = 0, sigmaCircleSz = 0;
+vector<double> coinChars( int coinNumber, int valCoin, vector<RotatedRect> blobList){
+	double expBlobSz = 0, sigmaBlobSz = 0;
 
-	for(int i=0; i < circleList.size(); i++){
-		double radCoin = circleList[i][2];
-		double circleArea = pow(radCoin, 2) * coinFactor[coinNumber];
-		expCircleSz += circleArea/circleList.size();
-//		sigmaCircleSz += (circleArea/circleList.size()) * circleArea;
+	for(int i=0; i < blobList.size(); i++){
+		Size2f areaEll = blobList[i].size;
+		double blobArea = (areaEll.width * areaEll.height) * coinFactor[coinNumber];
+		expBlobSz += blobArea/blobList.size();
+//		sigmaBlobSz += (blobArea/blobList.size()) * blobArea;
 	}
-// 	sigmaCircleSz = sqrt(sigmaCircleSz - pow(expCircleSz, 2)) * QTT_SIGMA;
+// 	sigmaBlobSz = sqrt(sigmaBlobSz - pow(expBlobSz, 2)) * QTT_SIGMA;
 
-  /** Calculo alternativo do sigmaCircleSz **/
+  /** Calculo alternativo do sigmaBlobSz **/
   int nextCoin = 4, prevCoin = 1;
 	for(int i=0; i < ratDiaCoin.size(); i++){
 		if (ratDiaCoin[i] > ratDiaCoin[coinNumber] && ratDiaCoin[i] <= ratDiaCoin[nextCoin]) nextCoin = i;
 		if (ratDiaCoin[i] < ratDiaCoin[coinNumber] && ratDiaCoin[i] >= ratDiaCoin[prevCoin]) prevCoin = i;
 	}
 	if(nextCoin == coinNumber || prevCoin == coinNumber)
-		sigmaCircleSz = expCircleSz * max(abs(coinFactor[coinNumber]- coinFactor[prevCoin]), abs(coinFactor[nextCoin]-coinFactor[coinNumber])) / QTT_SIGMA;
-	else sigmaCircleSz = expCircleSz * min(abs(coinFactor[coinNumber]- coinFactor[prevCoin]), abs(coinFactor[nextCoin]-coinFactor[coinNumber])) / QTT_SIGMA;
+		sigmaBlobSz = expBlobSz * max(abs(coinFactor[coinNumber]- coinFactor[prevCoin]), abs(coinFactor[nextCoin]-coinFactor[coinNumber])) / QTT_SIGMA;
+	else sigmaBlobSz = expBlobSz * min(abs(coinFactor[coinNumber]- coinFactor[prevCoin]), abs(coinFactor[nextCoin]-coinFactor[coinNumber])) / QTT_SIGMA;
 	/****************************************/
 
-	return {double(valCoin), expCircleSz - sigmaCircleSz/2, expCircleSz + sigmaCircleSz/2};
+	return {double(valCoin), expBlobSz - sigmaBlobSz/2, expBlobSz + sigmaBlobSz/2};
 }
 
 
 int main(int argc, char** argv){
 	Mat frame;
 	Mat orig;
+	Mat fore;
 
 	time_t camAdaptationStartTime = time(NULL);
 	bool camAdapted = false;
@@ -60,11 +61,13 @@ int main(int argc, char** argv){
 		/*********************************************/
 		if( camAdapted){
 			detector.morphologyOperations(frame, frame);
-			detector.findHough(frame);
-			detector.drawHough(orig, Scalar(255,255,0));
+			detector.findEllipses(frame);
 
-//			imshow("Treated Image", detector.findHough(frame)); /* mostra masks para fins de debug */
+//			detector.findBlobs(frame);
+//			detector.drawBlobs(orig, Scalar(255,255,0));
+			imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
       
+			detector.drawEllipses(orig, Scalar(255,255,0));
 
 			//Printa quais moedas ja foram calibradas
 /***			for(int i=0; i < coinValues.size()-1; i++){
@@ -81,9 +84,9 @@ int main(int argc, char** argv){
 			//Printa num de moedas identificadas
 			char buffer[11];
 			string tipoObjeto = "moeda";
-			if( detector.getHough().size() != 1 && detector.getHough().size() != 0)
+			if( detector.getEllipses().size() != 1 && detector.getEllipses().size() != 0)
 				tipoObjeto += "s";
-			sprintf(buffer, "%lu %s", detector.getHough().size(), tipoObjeto.c_str());
+			sprintf(buffer, "%lu %s", detector.getEllipses().size(), tipoObjeto.c_str());
 			putText(orig,buffer,Point(20,orig.size().height-40),FONT_HERSHEY_PLAIN,6,Scalar(255,255,255),4);
 
 		} /*******************************************/
@@ -106,7 +109,7 @@ int main(int argc, char** argv){
 			}
 		}
 
-		imshow("Calibrador", orig);
+		imshow("Contador de moedas", orig);
 
 
 		/*** Acoes do teclado ***/
@@ -122,7 +125,7 @@ int main(int argc, char** argv){
 		}
 		else if ((key & 0xFF) == 's' || (key & 0xFF) == 'S'){ //S: salva
 			for(int i = 0; i < 5; i++)
-				allCoins.push_back( coinChars(i, coinValues[i], detector.getHough()) );			
+				allCoins.push_back( coinChars(i, coinValues[i], detector.getEllipses()) );			
 //			camAdapted = false;
 //			EnableCameraAutoAdjust(GetVideoNum(argc, argv));   
 //			camAdaptationStartTime = time(NULL);

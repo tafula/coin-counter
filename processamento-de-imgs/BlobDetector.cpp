@@ -107,32 +107,14 @@ Mat BlobDetector::findEllipses(Mat orig){
 
 /*** Aplica Hough Transform na imagem ***/
 /*************************************************************/
-/*** Mat BlobDetector::findHough(Mat orig){
-	Mat foreground;
-	vector < vector<Point> > contours;
+Mat BlobDetector::findHough(Mat orig){	
+	houghBlobs.clear();
+	cvtColor(orig.clone(), orig, CV_BGR2GRAY);
+	GaussianBlur( orig, orig, Size(9, 9), 2, 2 );
+	HoughCircles( orig, houghBlobs, CV_HOUGH_GRADIENT, 1, orig.rows/16, 125, 30, 0, 0 );
 
-	threshold(foreground, foreground, MIN_THRESHOLD, DEST_THRESHOLD, CV_THRESH_BINARY);
-
-	findContours(foreground.clone(), contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-
-	
-	houghCircs.clear();
-	cvtColor(foreground.clone(), foreground, CV_BGR2GRAY);
-    	GaussianBlur( foreground, foreground, Size(9, 9), 2, 2 );
-	HoughCircles( foreground, houghCircs, CV_HOUGH_GRADIENT, 2, foreground->rows/4, 200, 100 );
-	for( int i = 0; i < contours.size(); i++ ){
-		if( contours[i].size() > 20){
-			RotatedRect ellHull = fitEllipse( Mat(contours[i]) );
-			Size2f areaEll = ellHull.size;
-			double area = areaEll.width * areaEll.height;
-			if(area > minAreaBlob && area < maxAreaBlob){
-				if(areaEll.width/areaEll.height <= ECC_ELL && areaEll.height/areaEll.width <= ECC_ELL) minEllipse.push_back( ellHull );
-			}
-		}
-	}
-
-	return foreground;
-} ***/ /***********************************************************/
+	return orig;
+} /***********************************************************/
 
 
 
@@ -151,7 +133,7 @@ vector< RotatedRect > BlobDetector::getEllipses(){
 /*** Devolve lista de hough circles ***/ 
 /***********************************************/
 vector< Vec3f > BlobDetector::getHough(){
-	return houghCircs;
+	return houghBlobs;
 } /*********************************************/
 
 
@@ -163,7 +145,6 @@ void BlobDetector::drawBlobs(Mat frame, Scalar color){
 	}
 } /**************************************************/
 
-
 /*** Desenha elipses identificadas na imagem ***/
 /****************************************************/
 void BlobDetector::drawEllipses(Mat frame, Scalar color){
@@ -171,6 +152,18 @@ void BlobDetector::drawEllipses(Mat frame, Scalar color){
 		ellipse(frame, minEllipse[i], color, 2, 8 );
 	}
 } /**************************************************/
+
+/*** Desenha Hough Circles identificados na imagem ***/
+/****************************************************/
+void BlobDetector::drawHough(Mat frame, Scalar color){
+	for(int i = 0; i < houghBlobs.size(); i++){
+		Point center( cvRound(houghBlobs[i][0]), cvRound(houghBlobs[i][1]) );
+		int radius = cvRound(houghBlobs[i][2]);
+		circle( frame, center, radius, color, 2, 8, 0);
+	}
+} /**************************************************/
+
+		
 
 
 void BlobDetector::boundBlobs(Mat frame, Scalar color){

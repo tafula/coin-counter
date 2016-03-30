@@ -3,7 +3,7 @@
 Repositório que armazena código de detecção de moedas. O código conta o valor monetário mostrado na tela.
 
 _processamento-de-imgs/_
-- BlobDetector.cpp: Usado para detecção e tratamento de Blobs;
+- BlobDetector.cpp: Usado para detecção e tratamento de Blobs/Elipses/*HoughCircles*;
 - Util.cpp: Calibragem da câmera (Hardware);
 
 _./_

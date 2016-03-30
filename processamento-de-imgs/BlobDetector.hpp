@@ -1,7 +1,7 @@
 #ifndef BLOB_DETECTOR_H
 #define BLOB_DETECTOR_H
 
-#define labNote 1
+#define labNote 0
 #define ECC_ELL 1.2
 
 #define learnRate 0 //Frequencia de atualizacao do BackgroundSubtractor(MOG2)
@@ -22,7 +22,7 @@ private:
   Mat morphologicalKernel;
   vector< vector<Point> > hulls;
   vector< RotatedRect> minEllipse;
-  vector< Vec3f > houghCircs;
+  vector< Vec3f > houghBlobs;
   int minAreaBlob;
   int maxAreaBlob;
   int MIN_THRESHOLD;
@@ -37,6 +37,7 @@ public:
   void boundBlobs(Mat frame, Scalar color);
   void drawBlobs(Mat frame, Scalar color);
   void drawEllipses(Mat frame, Scalar color);
+	void drawHough(Mat frame, Scalar color);
   void morphologyOperations(Mat orig, Mat dest);
   Mat findBlobs(Mat orig);
   Mat findEllipses(Mat orig);
