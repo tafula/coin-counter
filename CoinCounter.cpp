@@ -91,7 +91,7 @@ int main(int argc, char** argv){
 			vector<Vec3f> houghGot = detector.getHough();
 			detector.drawHough(orig, Scalar(255,255,0)); /* desenha HoughCircles dos blobs na copia da imagem original */
 
-//			imshow("Treated Image", detector.findHough(frame)); /* mostra masks para fins de debug */
+			imshow("Treated Image", detector.findHough(frame)); /* mostra masks para fins de debug */
 
 
 

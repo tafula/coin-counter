@@ -30,16 +30,16 @@ void BlobDetector::resetBackground(){
 /*** Operacoes 'dilate' e 'erode' consecutivas preparando imagem para melhor tratamento ***/
 /**********************************************************/
 void BlobDetector::morphologyOperations(Mat orig, Mat dest){
-	//blur(orig, dest,Size(3,3));
+	//blur(orig, dest,Size(5,5));
 	blur(orig, dest, Size(5,5));
 
-	dilate(orig, dest, morphologicalKernel);
-	erode(orig, dest, morphologicalKernel);
+	dilate(dest, dest, morphologicalKernel);
+	erode(dest, dest, morphologicalKernel);
 
-	erode(orig, dest, morphologicalKernel);
-	dilate(orig, dest, morphologicalKernel);
+	erode(dest, dest, morphologicalKernel);
+	dilate(dest, dest, morphologicalKernel);
   
-	dilate(orig,dest,morphologicalKernel);
+	dilate(dest, dest, morphologicalKernel);
 } /*********************************************************/
 
 
@@ -108,12 +108,19 @@ Mat BlobDetector::findEllipses(Mat orig){
 /*** Aplica Hough Transform na imagem ***/
 /*************************************************************/
 Mat BlobDetector::findHough(Mat orig){	
-	houghBlobs.clear();
+	Mat fore;
+	
 	cvtColor(orig.clone(), orig, CV_BGR2GRAY);
-	GaussianBlur( orig, orig, Size(9, 9), 2, 2 );
-	HoughCircles( orig, houghBlobs, CV_HOUGH_GRADIENT, 1, orig.rows/16, 125, 30, 0, 0 );
+//	threshold(orig, orig, MIN_THRESHOLD, DEST_THRESHOLD, CV_THRESH_BINARY);
 
-	return orig;
+	medianBlur(orig, orig, 15);
+	bilateralFilter(orig, fore, 9, 150, 150);
+//	GaussianBlur(fore, fore, Size(25, 25), 2, 2 );
+	
+	houghBlobs.clear();
+	HoughCircles(fore, houghBlobs, CV_HOUGH_GRADIENT, 1, orig.rows/10, 50, 50, 0, 0 );
+
+	return fore;
 } /***********************************************************/
 
 
