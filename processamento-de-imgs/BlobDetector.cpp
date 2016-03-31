@@ -30,16 +30,20 @@ void BlobDetector::resetBackground(){
 /*** Operacoes 'dilate' e 'erode' consecutivas preparando imagem para melhor tratamento ***/
 /**********************************************************/
 void BlobDetector::morphologyOperations(Mat orig, Mat dest){
-	//blur(orig, dest,Size(5,5));
-	blur(orig, dest, Size(5,5));
+	cvtColor(orig.clone(), orig, CV_BGR2GRAY);
+	//blur(orig, dest,Size(3,3));
+	GaussianBlur( orig, dest, Size(5, 5), 2, 2 );
 
 	dilate(dest, dest, morphologicalKernel);
 	erode(dest, dest, morphologicalKernel);
 
-	erode(dest, dest, morphologicalKernel);
-	dilate(dest, dest, morphologicalKernel);
+//	erode(dest, dest, morphologicalKernel);
+//	dilate(dest, dest, morphologicalKernel);
+
+	Laplacian( dest, dest, CV_16S, 1, 1, 0, BORDER_DEFAULT );
+	convertScaleAbs( dest, dest );
   
-	dilate(dest, dest, morphologicalKernel);
+//	dilate(dest,dest,morphologicalKernel);
 } /*********************************************************/
 
 
@@ -77,8 +81,8 @@ Mat BlobDetector::findEllipses(Mat orig){
 	Mat foreground;
 	vector < vector<Point> > contours;
 
-//	cvtColor(orig.clone(), orig, CV_BGR2GRAY);
 	GaussianBlur( orig, orig, Size( 9, 9 ), 2, 2 );
+	medianBlur( orig, orig, 9);
 
 #if labNote
 	backgroungSubtractor->apply(orig.clone(), foreground, learnRate); //3o PARAMETRO: Learning rate do BackgroundSubtractor
@@ -108,19 +112,15 @@ Mat BlobDetector::findEllipses(Mat orig){
 /*** Aplica Hough Transform na imagem ***/
 /*************************************************************/
 Mat BlobDetector::findHough(Mat orig){	
-	Mat fore;
-	
-	cvtColor(orig.clone(), orig, CV_BGR2GRAY);
-//	threshold(orig, orig, MIN_THRESHOLD, DEST_THRESHOLD, CV_THRESH_BINARY);
-
-	medianBlur(orig, orig, 15);
-	bilateralFilter(orig, fore, 9, 150, 150);
-//	GaussianBlur(fore, fore, Size(25, 25), 2, 2 );
-	
 	houghBlobs.clear();
-	HoughCircles(fore, houghBlobs, CV_HOUGH_GRADIENT, 1, orig.rows/10, 50, 50, 0, 0 );
 
-	return fore;
+	cvtColor(orig.clone(), orig, CV_BGR2GRAY);
+	medianBlur( orig, orig, 9);
+//	GaussianBlur( orig, orig, Size(9, 9), 2, 2 );
+//	medianBlur( orig, orig, 9);
+	HoughCircles( orig, houghBlobs, CV_HOUGH_GRADIENT, 1, orig.rows/16, 125, 30, 0, 0 );
+
+	return orig;
 } /***********************************************************/
 
 
