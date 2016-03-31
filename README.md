@@ -1,4 +1,4 @@
-** DETECÇÃO DE MOEDAS **
+**DETECÇÃO DE MOEDAS**
 
 Repositório que armazena código de detecção de moedas. O código conta o valor monetário mostrado na tela.
 
@@ -8,8 +8,9 @@ _processamento-de-imgs/_
 
 _./_
 - settings.txt: Guarda as configurações a serem usadas pelo CoinCounter.cpp para identificar e separar as moedas;
-- Calibrator.cpp: Configura o settings.txt;
-- CoinCounter.cpp: main.
+- CoinCounter.cpp: Contém os elementos da classe a ser usada por ambos calibrator.cpp e contador.cpp;
+- calibrador.cpp: Configura o settings.txt;
+- contador.cpp: main.
 
 No momento os valores são lidos apenas em Reais. A ordem no Calibrator.cpp é hard-coded e a janela fecha após a calibragem. A interface para o usuário é extremamente minimalista. Pretendemos implementar:
 
