@@ -1,4 +1,4 @@
-all: calibrador contador
+all: main
 
 FLAGS = -g
 LIBS = -isystem/usr/include `pkg-config --libs opencv`
@@ -14,16 +14,16 @@ clean:
 	rm -rf *.dSYM
 
 Util.o: processamento-de-imgs/Util.cpp
-	g++ $< -o $@ -c $(X11FLAG)
+	g++ $< -o processamento-de-imgs/$@ -c $(X11FLAG)
 
 BlobDetector.o: processamento-de-imgs/BlobDetector.cpp
-	g++ -c processamento-de-imgs/BlobDetector.cpp
+	g++ $< -o processamento-de-imgs/$@ -c
+
+ToposDetector.o: processamento-de-imgs/ToposDetector.cpp
+	g++ $< -o processamento-de-imgs/$@ -c $(CPPVERSION)
 
 CoinCounter.o: CoinCounter.cpp
 	g++ $< -o $@ -c $(X11FLAG) $(CPPVERSION)
 
-calibrador: calibrador.cpp processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o CoinCounter.o
-	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o CoinCounter.o $(CPPVERSION) $(FLAGS)
-
-contador: contador.cpp processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o CoinCounter.o
-	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o CoinCounter.o $(CPPVERSION) $(FLAGS)
+main: main.cpp Util.o BlobDetector.o ToposDetector.o CoinCounter.o
+	g++ $< -o $@  $(LIBS) $(X11FLAG) processamento-de-imgs/Util.o processamento-de-imgs/BlobDetector.o processamento-de-imgs/ToposDetector.o CoinCounter.o $(CPPVERSION) $(FLAGS)
