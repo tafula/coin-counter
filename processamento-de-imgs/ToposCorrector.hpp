@@ -1,5 +1,5 @@
-#ifndef TOPOS_DETECTOR_H
-#define TOPOS_DETECTOR_H
+#ifndef TOPOS_CORRECTOR_H
+#define TOPOS_CORRECTOR_H
 
 #include <cmath>
 #include <opencv2/opencv.hpp>
@@ -7,7 +7,7 @@
 using namespace std;
 using namespace cv;
 
-class ToposDetector{
+class ToposCorrector{
 private:
 	Point pivot;
 	double Apivot;
@@ -17,7 +17,7 @@ private:
   
 
 public:
-	ToposDetector(Point pPivot, double Apivot, vector<Point> coordP, vector<double> Apts);
+	ToposCorrector(Point pPivot, double Apivot, vector<Point> coordP, vector<double> Apts);
 	double correctTopos(Point p);
 };
 

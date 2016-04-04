@@ -1,6 +1,6 @@
-#include "ToposDetector.hpp"
+#include "ToposCorrector.hpp"
 
-ToposDetector::ToposDetector(Point pPivot, double ApPivot, vector<Point> coordP, vector<double> Apts){
+ToposCorrector::ToposCorrector(Point pPivot, double ApPivot, vector<Point> coordP, vector<double> Apts){
 	pivot = pPivot;
 	Apivot = ApPivot;
 	basisGot = {coordP[0] - pivot, coordP[1] - pivot};
@@ -12,7 +12,7 @@ ToposDetector::ToposDetector(Point pPivot, double ApPivot, vector<Point> coordP,
 }
 
 //Corrige area sobre plano inclinado
-double ToposDetector::correctTopos(Point p){
+double ToposCorrector::correctTopos(Point p){
 	vector<double> pInBasis = {(changeBasis[0][0] + changeBasis[0][1]) * (p-pivot).x,
 	                          (changeBasis[1][0] + changeBasis[1][1]) * (p-pivot).y };
 	
