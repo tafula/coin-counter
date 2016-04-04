@@ -32,7 +32,7 @@ int main(int argc, char** argv){
 		/*** Main ***/
 		/************************************************************************/
 		if( camAdapted){
-			contador->LeMoedas(orig, frame);
+			contador->LeMoedas(orig, frame, Scalar(255,255,0));
 			vector<coins_t> coinsGot = contador->getCoins();
 
 			if(SETTADO == false)

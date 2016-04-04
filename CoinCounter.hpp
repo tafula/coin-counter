@@ -10,7 +10,9 @@
 #include <sys/time.h>
 #include "processamento-de-imgs/Util.hpp"
 #include "processamento-de-imgs/BlobDetector.hpp"
+#include "processamento-de-imgs/ToposCorrector.hpp"
 
+#define PI 3.14159265359
 #define EROSION_DILATION_SIZE 3
 
 using namespace cv;
@@ -43,6 +45,9 @@ private:
 	double totalMoney; /* valor total contado */
 	vector<int> coinCount; /* contador individual de moedas */
 
+	coins_t pivot;
+	vector<coins_t> keyPts;
+
 public:
 	CoinCounter(char const* titulo);
 
@@ -51,10 +56,13 @@ public:
 
 	//Funcs
 	vector<double> coinChars( int coinNumber, vector<coins_t> blobList);
-	int coinIdentifier( vector< vector<double> > coinAreas, coins_t blobCoin);
+	int coinIdentifier( vector< vector<double> > coinAreas, coins_t blobCoin, double topCorrection);
 	double coinAreaToValue( vector<int> coinNumbers, int idCents);
+
+	void atualizaTrackCoin(coins_t* moedinha);
+
 	void AbreJanela();
-	void LeMoedas(Mat orig, Mat frame);
+	void LeMoedas(Mat orig, Mat frame, Scalar color);
 	vector<coins_t> getCoins();
 	void show(Mat orig);
 	void resetBackground();

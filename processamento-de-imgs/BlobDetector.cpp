@@ -116,6 +116,7 @@ Mat BlobDetector::findHough(Mat orig){
 
 	cvtColor(orig.clone(), orig, CV_BGR2GRAY);
 	medianBlur( orig, orig, 9);
+//	Canny( orig, orig, 20, 300);
 //	GaussianBlur( orig, orig, Size(9, 9), 2, 2 );
 //	medianBlur( orig, orig, 9);
 	HoughCircles( orig, houghBlobs, CV_HOUGH_GRADIENT, 1, orig.rows/16, 125, 30, 0, 0 );

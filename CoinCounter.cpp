@@ -17,9 +17,9 @@ double AreaCoin( coins_t moedinha){
 #ifdef BLOB
 		return countorArea(moedinha);
 #elif defined ELLIPSE
-		return moedinha.size.width * moedinha.size.height;
+		return moedinha.size.width * moedinha.size.height * PI;
 #elif defined HOUGH
-		return pow(moedinha[2], 2);
+		return pow(moedinha[2], 2) * PI;
 #endif
 }
 
@@ -34,6 +34,18 @@ CoinCounter::CoinCounter(char const* titulo){
 		coinCount.push_back(0);
 }
 
+//Atualiza pivot
+void CoinCounter::atualizaTrackCoin(coins_t* moedinha){
+	for(int i=0; i < coinsGot.size(); i++){
+		Point diff = CenterCoin(coinsGot[i]) - CenterCoin(*moedinha);
+		if( pow(diff.x, 2) + pow(diff.y, 2) <= AreaCoin(*moedinha)/PI ){
+			*moedinha = coinsGot[i];
+			break;
+		}
+	}
+}
+
+
 //Devolve caracteristicas do tipo de moeda analisada
 vector<double> CoinCounter::coinChars( int coinNumber, vector<coins_t> blobList){
 	double expBlobSz = 0, sigmaBlobSz = 0;
@@ -44,9 +56,9 @@ vector<double> CoinCounter::coinChars( int coinNumber, vector<coins_t> blobList)
 #ifdef BLOB
 		blobArea = countorArea(blobList[i]) * coinFactor[coinNumber];
 #elif defined ELLIPSE
-		blobArea = (blobList[i].size.width * blobList[i].size.height) * coinFactor[coinNumber];
+		blobArea = (blobList[i].size.width * blobList[i].size.height) * PI * coinFactor[coinNumber];
 #elif defined HOUGH
-		blobArea = pow(blobList[i][2], 2) * coinFactor[coinNumber];
+		blobArea = pow(blobList[i][2], 2) * PI * coinFactor[coinNumber];
 #endif
 
 		expBlobSz += blobArea/blobList.size();
@@ -65,8 +77,10 @@ vector<double> CoinCounter::coinChars( int coinNumber, vector<coins_t> blobList)
 
 
 //Identifica qual moeda mais se aproxima do blob identificado
-int CoinCounter::coinIdentifier( vector< vector<double> > coinAreas, coins_t blobCoin){
-	double area = AreaCoin(blobCoin);
+int CoinCounter::coinIdentifier( vector< vector<double> > coinAreas, coins_t blobCoin, double topCorrection){
+	double area = AreaCoin(blobCoin) * topCorrection;
+
+	cout << topCorrection << "\n";
 
 	for(int i=0; i < coinAreas.size(); i++){
 		if( area >= coinAreas[i][0] && area <= coinAreas[i][1])
@@ -91,30 +105,28 @@ void CoinCounter::AbreJanela(){
 }
 
 //Le moedas da camera
-void CoinCounter::LeMoedas(Mat orig, Mat frame){
+void CoinCounter::LeMoedas(Mat orig, Mat frame, Scalar color){
 	detector->morphologyOperations(frame, frame); /* operacoes morfologicas */
 
 	coinsGot.clear();
 #ifdef BLOB
 	detector->findBlobs(frame); /* identifica e guarda blobs */
 	coinsGot = detector->getBlobs();
-#elif defined ELLIPSE
-	detector->findEllipses(frame);
-	coinsGot = detector->getEllipses();
-#elif defined HOUGH
-	detector->findHough(frame);
-	coinsGot = detector->getHough();
-#endif
-
-	Scalar color = Scalar(255,255,0);
-#ifdef BLOB
 	detector->drawBlobs(orig, color); /* desenha blobs dos blobs na copia da imagem original */
 //	imshow("Treated Image", detector.findBlobs(frame)); /* mostra masks para fins de debug */
 #elif defined ELLIPSE
+	detector->findEllipses(frame);
+	coinsGot = detector->getEllipses();
 	detector->drawEllipses(orig, color);
 	imshow("Treated Image", detector->findEllipses(frame));
 #elif defined HOUGH
+	detector->findHough(frame);
+	coinsGot = detector->getHough();
 	detector->drawHough(orig, color);
+
+	circle( orig, CenterCoin(pivot), sqrt(AreaCoin(pivot)/PI), Scalar(0,255,0), 2, 8, 0);
+//	circle( orig, CenterCoin(keyPts[0]), sqrt(AreaCoin(keyPts[0])/PI), Scalar(0,255,0), 2, 8, 0);
+//	circle( orig, CenterCoin(keyPts[1]), sqrt(AreaCoin(keyPts[1])/PI), Scalar(0,255,0), 2, 8, 0);
 	imshow("Treated Image", detector->findHough(frame));
 #endif
 }
@@ -146,8 +158,15 @@ void CoinCounter::preSettings(Mat orig){
 
 //Configura os valores das areas
 void CoinCounter::settaSettings(){
+	coinAreas.clear();
 	for(int i = 0; i < coinValues.size(); i++)
-		coinAreas.push_back( coinChars(i, coinsGot) );
+		coinAreas.push_back( coinChars(i, {coinsGot[0]}) );
+
+	pivot = coinsGot[0]; /* getta o pivot */
+
+	keyPts.clear(); /* getta os key pts */
+	keyPts.push_back(coinsGot[1]);	
+	keyPts.push_back(coinsGot[2]);
 }
 
 //Limpa valores das areas
@@ -157,12 +176,22 @@ void CoinCounter::resetaSettings(){
 
 //Tela depois de settar tamanhos das moedas
 void CoinCounter::posSettings(Mat orig){
+	atualizaTrackCoin(&pivot); /* trackeia o pivot conforme a camera nao muda muito */
+	atualizaTrackCoin(&keyPts[0]);
+	atualizaTrackCoin(&keyPts[1]);
+
+	coinAreas.clear();
+	for(int i = 0; i < coinValues.size(); i++)
+		coinAreas.push_back( coinChars(i, {pivot}) );
+
+	ToposCorrector mesa( CenterCoin(pivot), AreaCoin(pivot), {CenterCoin(keyPts[0]), CenterCoin(keyPts[1])}, {AreaCoin(keyPts[0]), AreaCoin(keyPts[1])} ); /* inicializa o corretor da topologia da mesa */
+
 	for(int i=0; i < coinCount.size(); i++) /* Limpa contador individual de moedas */
 		coinCount[i] = 0;
 
 	totalMoney = 0;
 	for(int i=0; i < coinsGot.size(); i++){ /* Conta moedas e soma dinheiro */
-		int coinID = coinIdentifier(coinAreas, coinsGot[i]);
+		int coinID = coinIdentifier(coinAreas, coinsGot[i], mesa.correctTopos(CenterCoin( coinsGot[i] )) );
 		coinCount[coinID]++;
 		totalMoney += coinAreaToValue( coinValues, coinID);
 

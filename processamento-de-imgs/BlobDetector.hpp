@@ -1,7 +1,7 @@
 #ifndef BLOB_DETECTOR_H
 #define BLOB_DETECTOR_H
 
-#define labNote 0
+#define labNote 1
 #define ECC_ELL 1.2
 
 #define learnRate 0 //Frequencia de atualizacao do BackgroundSubtractor(MOG2)
