@@ -37,7 +37,7 @@ public:
 	void boundBlobs(Mat frame, Scalar color);
 	void drawBlobs(Mat frame, Scalar color);
 	void drawEllipses(Mat frame, Scalar color);
-	void drawHough(Mat frame, Scalar color);
+	void drawHough(Mat frame, Scalar color, vector<Vec3f> paraDesenhar = {});
 	void morphologyOperations(Mat orig, Mat dest);
 	Mat findBlobs(Mat orig);
 	Mat findEllipses(Mat orig);

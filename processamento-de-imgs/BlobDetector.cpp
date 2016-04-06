@@ -1,18 +1,18 @@
 #include "BlobDetector.hpp"
 
 BlobDetector::BlobDetector(int kernelShape, Size kernelSize, Point kernelAnchorPoint, int minArea, int maxArea, int minT, int maxT){
-  morphologicalKernel = getStructuringElement(kernelShape, kernelSize, kernelAnchorPoint);
-  minAreaBlob = minArea;
-  maxAreaBlob = maxArea;
+	morphologicalKernel = getStructuringElement(kernelShape, kernelSize, kernelAnchorPoint);
+	minAreaBlob = minArea;
+	maxAreaBlob = maxArea;
 
 #if labNote
-		backgroungSubtractor = createBackgroundSubtractorMOG2();
+	backgroungSubtractor = createBackgroundSubtractorMOG2();
 #else
-		backgroungSubtractor = BackgroundSubtractorMOG2();
+	backgroungSubtractor = BackgroundSubtractorMOG2();
 #endif
 
-  MIN_THRESHOLD = minT;
-  DEST_THRESHOLD = maxT;
+	MIN_THRESHOLD = minT;
+	DEST_THRESHOLD = maxT;
 }
 
 
@@ -20,7 +20,7 @@ BlobDetector::BlobDetector(int kernelShape, Size kernelSize, Point kernelAnchorP
 /**************************************************/
 void BlobDetector::resetBackground(){
 #if labNote
-  backgroungSubtractor = createBackgroundSubtractorMOG2();
+	backgroungSubtractor = createBackgroundSubtractorMOG2();
 #else
 	backgroungSubtractor = BackgroundSubtractorMOG2();
 #endif
@@ -111,7 +111,7 @@ Mat BlobDetector::findEllipses(Mat orig){
 
 /*** Aplica Hough Transform na imagem ***/
 /*************************************************************/
-Mat BlobDetector::findHough(Mat orig){	
+Mat BlobDetector::findHough(Mat orig){
 	houghBlobs.clear();
 
 	cvtColor(orig.clone(), orig, CV_BGR2GRAY);
@@ -163,10 +163,12 @@ void BlobDetector::drawEllipses(Mat frame, Scalar color){
 
 /*** Desenha Hough Circles identificados na imagem ***/
 /****************************************************/
-void BlobDetector::drawHough(Mat frame, Scalar color){
-	for(int i = 0; i < houghBlobs.size(); i++){
-		Point center( cvRound(houghBlobs[i][0]), cvRound(houghBlobs[i][1]) );
-		int radius = cvRound(houghBlobs[i][2]);
+void BlobDetector::drawHough(Mat frame, Scalar color, vector<Vec3f> paraDesenhar){
+	if(paraDesenhar.empty())
+		paraDesenhar = houghBlobs;
+	for(int i = 0; i < paraDesenhar.size(); i++){
+		Point center( cvRound(paraDesenhar[i][0]), cvRound(paraDesenhar[i][1]) );
+		int radius = cvRound(paraDesenhar[i][2]);
 		circle( frame, center, radius, color, 2, 8, 0);
 	}
 } /**************************************************/

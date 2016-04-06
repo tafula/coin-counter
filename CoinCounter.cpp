@@ -3,35 +3,37 @@
 //Centro de um coins_t
 Point CenterCoin( coins_t moedinha){
 #ifdef BLOB
-		RotatedRect ellMoeda = fitEllipse( Mat(moedinha) );
-		return ellMoeda.center;
+	RotatedRect ellMoeda = fitEllipse( Mat(moedinha) );
+	return ellMoeda.center;
 #elif defined ELLIPSE
-		return moedinha.center;
+	return moedinha.center;
 #elif defined HOUGH
-		return {cvRound(moedinha[0]), cvRound(moedinha[1])};
+	return {cvRound(moedinha[0]), cvRound(moedinha[1])};
 #endif
 }
 
 //Area de um coins_t
 double AreaCoin( coins_t moedinha){
 #ifdef BLOB
-		return countorArea(moedinha);
+	return countorArea(moedinha);
 #elif defined ELLIPSE
-		return moedinha.size.width * moedinha.size.height * PI;
+	return moedinha.size.width * moedinha.size.height * PI;
 #elif defined HOUGH
-		return pow(moedinha[2], 2) * PI;
+	return pow(moedinha[2], 2) * PI;
 #endif
 }
 
 //Construtor do CoinCounter com valores especificos da moeda
 CoinCounter::CoinCounter(char const* titulo){
 	for(int i = 0; i < 32; i++) Titulo[i] = titulo[i];
-  coinValues = {5, 10, 25, 50, 100};
+	coinValues = {5, 10, 25, 50, 100};
 	ratDiaCoin = {22.0, 20.0, 25.0, 23.0, 27.0};
 	coinFactor = {pow(ratDiaCoin[0],2)/pow(ratDiaCoin[4],2), pow(ratDiaCoin[1],2)/pow(ratDiaCoin[4],2), pow(ratDiaCoin[2],2)/pow(ratDiaCoin[4],2),pow(ratDiaCoin[3],2)/pow(ratDiaCoin[4],2), 1}; /* Razao entre areas */
 
 	for(int i = 0; i < coinValues.size(); i++) /* inicializa contador individual */
 		coinCount.push_back(0);
+
+	coinsGot.clear();
 }
 
 //Atualiza pivot
@@ -63,7 +65,7 @@ vector<double> CoinCounter::coinChars( int coinNumber, vector<coins_t> blobList)
 
 		expBlobSz += blobArea/blobList.size();
 	}
-  int nextCoin = 4, prevCoin = 1;
+	int nextCoin = 4, prevCoin = 1;
 	for(int i=0; i < ratDiaCoin.size(); i++){
 		if (ratDiaCoin[i] > ratDiaCoin[coinNumber] && ratDiaCoin[i] <= ratDiaCoin[nextCoin]) nextCoin = i;
 		if (ratDiaCoin[i] < ratDiaCoin[coinNumber] && ratDiaCoin[i] >= ratDiaCoin[prevCoin]) prevCoin = i;
@@ -107,8 +109,9 @@ void CoinCounter::AbreJanela(){
 //Le moedas da camera
 void CoinCounter::LeMoedas(Mat orig, Mat frame, Scalar color){
 	detector->morphologyOperations(frame, frame); /* operacoes morfologicas */
-
-	coinsGot.clear();
+	
+	vector<coins_t> tempCoinsGot;
+	tempCoinsGot.clear();
 #ifdef BLOB
 	detector->findBlobs(frame); /* identifica e guarda blobs */
 	coinsGot = detector->getBlobs();
@@ -121,15 +124,39 @@ void CoinCounter::LeMoedas(Mat orig, Mat frame, Scalar color){
 	imshow("Treated Image", detector->findEllipses(frame));
 #elif defined HOUGH
 	detector->findHough(frame);
-	coinsGot = detector->getHough();
-	detector->drawHough(orig, color);
+	tempCoinsGot = detector->getHough();
 
-	circle( orig, CenterCoin(pivot), sqrt(AreaCoin(pivot)/PI), Scalar(0,255,0), 2, 8, 0);
-//	circle( orig, CenterCoin(keyPts[0]), sqrt(AreaCoin(keyPts[0])/PI), Scalar(0,255,0), 2, 8, 0);
-//	circle( orig, CenterCoin(keyPts[1]), sqrt(AreaCoin(keyPts[1])/PI), Scalar(0,255,0), 2, 8, 0);
 	imshow("Treated Image", detector->findHough(frame));
 #endif
-}
+
+	/* trackeia o pivot conforme a camera nao muda muito */
+	for(int i = 0; i < coinsGot.size(); i++){
+		for(int j=0; j < tempCoinsGot.size(); j++){
+			Point diff = CenterCoin(coinsGot[i]) - CenterCoin(tempCoinsGot[j]);
+			if( pow(diff.x, 2) + pow(diff.y, 2) <= AreaCoin(coinsGot[i])/PI ){
+				coinsGot[i] = tempCoinsGot[j];
+				tempCoinsGot.erase( tempCoinsGot.begin() + j);
+				break;
+			}
+		}
+		coinsGot.erase( coinsGot.begin() + i );
+		i--;
+	}
+	int i = 0;
+	for (auto el : tempCoinsGot) {
+		coinsGot.push_back(el);
+	}
+
+	detector->drawHough(orig, color, coinsGot);
+
+/*	circle( orig, CenterCoin(pivot), sqrt(AreaCoin(pivot)/PI), Scalar(0,255,0), 2, 8, 0);
+	try{
+		circle( orig, CenterCoin(keyPts[0]), sqrt(AreaCoin(keyPts[0])/PI), Scalar(0,255,0), 2, 8, 0);
+	} catch(int e) { }
+	try{
+		circle( orig, CenterCoin(keyPts[1]), sqrt(AreaCoin(keyPts[1])/PI), Scalar(0,255,0), 2, 8, 0);
+	} catch(int e) { } */
+} 
 
 //retorna moedinhas
 vector< coins_t > CoinCounter::getCoins(){
@@ -171,14 +198,15 @@ void CoinCounter::settaSettings(){
 
 //Limpa valores das areas
 void CoinCounter::resetaSettings(){
+	coinsGot.clear();
 	coinAreas.clear();
 }
 
 //Tela depois de settar tamanhos das moedas
 void CoinCounter::posSettings(Mat orig){
-	atualizaTrackCoin(&pivot); /* trackeia o pivot conforme a camera nao muda muito */
+/*	atualizaTrackCoin(&pivot); 
 	atualizaTrackCoin(&keyPts[0]);
-	atualizaTrackCoin(&keyPts[1]);
+	atualizaTrackCoin(&keyPts[1]); */
 
 	coinAreas.clear();
 	for(int i = 0; i < coinValues.size(); i++)
