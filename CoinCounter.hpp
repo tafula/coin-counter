@@ -56,7 +56,7 @@ public:
 
 	//Funcs
 	vector<double> coinChars( int coinNumber, vector<coins_t> blobList);
-	int coinIdentifier( vector< vector<double> > coinAreas, coins_t blobCoin, double topCorrection);
+	int coinIdentifier( coins_t blobCoin, double topCorrection);
 	double coinAreaToValue( vector<int> coinNumbers, int idCents);
 
 	void atualizaTrackCoin(coins_t* moedinha);

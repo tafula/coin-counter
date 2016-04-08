@@ -34,6 +34,7 @@ CoinCounter::CoinCounter(char const* titulo){
 		coinCount.push_back(0);
 
 	coinsGot.clear();
+	keyPts.clear();
 }
 
 //Atualiza pivot
@@ -79,7 +80,7 @@ vector<double> CoinCounter::coinChars( int coinNumber, vector<coins_t> blobList)
 
 
 //Identifica qual moeda mais se aproxima do blob identificado
-int CoinCounter::coinIdentifier( vector< vector<double> > coinAreas, coins_t blobCoin, double topCorrection){
+int CoinCounter::coinIdentifier( coins_t blobCoin, double topCorrection){
 	double area = AreaCoin(blobCoin) * topCorrection;
 
 	cout << topCorrection << "\n";
@@ -131,16 +132,20 @@ void CoinCounter::LeMoedas(Mat orig, Mat frame, Scalar color){
 
 	/* trackeia o pivot conforme a camera nao muda muito */
 	for(int i = 0; i < coinsGot.size(); i++){
+		bool PodePoppar = true;
 		for(int j=0; j < tempCoinsGot.size(); j++){
 			Point diff = CenterCoin(coinsGot[i]) - CenterCoin(tempCoinsGot[j]);
 			if( pow(diff.x, 2) + pow(diff.y, 2) <= AreaCoin(coinsGot[i])/PI ){
 				coinsGot[i] = tempCoinsGot[j];
 				tempCoinsGot.erase( tempCoinsGot.begin() + j);
+				PodePoppar = false;
 				break;
 			}
 		}
-		coinsGot.erase( coinsGot.begin() + i );
-		i--;
+		if( PodePoppar == true){
+			coinsGot.erase( coinsGot.begin() + i );
+			i--;
+		}
 	}
 	int i = 0;
 	for (auto el : tempCoinsGot) {
@@ -149,13 +154,11 @@ void CoinCounter::LeMoedas(Mat orig, Mat frame, Scalar color){
 
 	detector->drawHough(orig, color, coinsGot);
 
-/*	circle( orig, CenterCoin(pivot), sqrt(AreaCoin(pivot)/PI), Scalar(0,255,0), 2, 8, 0);
-	try{
-		circle( orig, CenterCoin(keyPts[0]), sqrt(AreaCoin(keyPts[0])/PI), Scalar(0,255,0), 2, 8, 0);
-	} catch(int e) { }
-	try{
-		circle( orig, CenterCoin(keyPts[1]), sqrt(AreaCoin(keyPts[1])/PI), Scalar(0,255,0), 2, 8, 0);
-	} catch(int e) { } */
+	circle( orig, CenterCoin(pivot), sqrt(AreaCoin(pivot)/PI), Scalar(0,255,0), 2, 8, 0);
+	if(!keyPts.empty() ){
+		circle( orig, CenterCoin(keyPts[0]), sqrt(AreaCoin(keyPts[0])/PI), Scalar(0,0,255), 2, 8, 0);
+		circle( orig, CenterCoin(keyPts[1]), sqrt(AreaCoin(keyPts[1])/PI), Scalar(0,0,255), 2, 8, 0);
+	}
 } 
 
 //retorna moedinhas
@@ -204,9 +207,9 @@ void CoinCounter::resetaSettings(){
 
 //Tela depois de settar tamanhos das moedas
 void CoinCounter::posSettings(Mat orig){
-/*	atualizaTrackCoin(&pivot); 
-	atualizaTrackCoin(&keyPts[0]);
-	atualizaTrackCoin(&keyPts[1]); */
+	pivot = coinsGot[0]; /* getta o pivot */
+	keyPts[0] = coinsGot[1];	
+	keyPts[1] = coinsGot[2];
 
 	coinAreas.clear();
 	for(int i = 0; i < coinValues.size(); i++)
@@ -219,7 +222,7 @@ void CoinCounter::posSettings(Mat orig){
 
 	totalMoney = 0;
 	for(int i=0; i < coinsGot.size(); i++){ /* Conta moedas e soma dinheiro */
-		int coinID = coinIdentifier(coinAreas, coinsGot[i], mesa.correctTopos(CenterCoin( coinsGot[i] )) );
+		int coinID = coinIdentifier( coinsGot[i], mesa.correctTopos(CenterCoin( coinsGot[i] )) );
 		coinCount[coinID]++;
 		totalMoney += coinAreaToValue( coinValues, coinID);
 
